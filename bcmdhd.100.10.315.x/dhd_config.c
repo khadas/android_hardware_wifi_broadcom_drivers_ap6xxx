@@ -434,8 +434,9 @@ dhd_conf_set_fw_name_by_chip(dhd_pub_t *dhd, char *fw_path)
 {
 	int fw_type, ag_type;
 	uint chip, chiprev;
-	int i;
+	int i, j, len;
 	char *name_ptr;
+	char *fw_path_swap;
 
 	chip = dhd->conf->chip;
 	chiprev = dhd->conf->chiprev;
@@ -491,8 +492,20 @@ dhd_conf_set_fw_name_by_chip(dhd_pub_t *dhd, char *fw_path)
 #ifdef BCMUSBDEV_COMPOSITE
 			strcat(fw_path, "_cusb");
 #endif
-			if (fw_type == FW_TYPE_APSTA)
+			if (fw_type == FW_TYPE_APSTA) {
 				strcat(fw_path, "_apsta.bin");
+				if (fw_path[0] == '=') {
+					len = strlen(fw_path);
+					j = 0;
+					while ( j < (len-1)) {
+						fw_path_swap[j] = fw_path[j+1];
+						j++;
+					}
+					len = strlen(fw_path_swap);
+					fw_path_swap[len-1] = '\0';
+					fw_path = fw_path_swap;
+				}
+			}
 			else if (fw_type == FW_TYPE_P2P)
 				strcat(fw_path, "_p2p.bin");
 			else if (fw_type == FW_TYPE_MESH)
