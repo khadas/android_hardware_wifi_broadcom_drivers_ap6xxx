@@ -53,7 +53,9 @@
 #if defined(CONFIG_HAS_WAKELOCK)
 #include <linux/wakelock.h>
 #endif /* defined CONFIG_HAS_WAKELOCK */
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 11, 0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 4, 0)
+#include <uapi/linux/sched/types.h>
+#elif LINUX_VERSION_CODE >= KERNEL_VERSION(4, 11, 0)
 #include <linux/sched/types.h>
 #endif /* LINUX_VERSION_CODE >= KERNEL_VERSION(4, 11, 0) */
 /* The kernel threading is sdio-specific */
@@ -820,7 +822,7 @@ extern void clear_debug_dump_time(char *str);
 
 #define DHDIF_FWDER(dhdif)      FALSE
 
-#define DHD_COMMON_DUMP_PATH	"/data/vendor/misc/wifi/"
+#define DHD_COMMON_DUMP_PATH	"/data/misc/wifi/"
 
 struct cntry_locales_custom {
 	char iso_abbrev[WLC_CNTRY_BUF_SZ];      /* ISO 3166-1 country abbreviation */
@@ -1387,6 +1389,10 @@ typedef struct dhd_pub {
 	void *pktcnts;
 #endif /* DHD_PKTDUMP_ROAM */
 	bool disable_dtim_in_suspend;	/* Disable set bcn_li_dtim in suspend */
+#ifdef CSI_SUPPORT
+	struct list_head csi_list;
+	int csi_count;
+#endif /* CSI_SUPPORT */
 	char *clm_path;		/* module_param: path to clm vars file */
 	char *conf_path;		/* module_param: path to config vars file */
 	struct dhd_conf *conf;	/* Bus module handle */
@@ -2358,6 +2364,7 @@ extern uint dhd_console_ms;
 extern uint android_msg_level;
 extern uint config_msg_level;
 extern uint sd_msglevel;
+extern uint dump_msg_level;
 #ifdef BCMDBUS
 extern uint dbus_msglevel;
 #endif /* BCMDBUS */
